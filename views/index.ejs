@@ -9,5 +9,39 @@
 </head>
 <body>
     <h1>Toren kraan</h1>
+    <button onclick="goRight()">Turn right</button>
+    <button onclick="stop()">Stop</button>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas")
+        const ctx = canvas.getContext("2d")
+        let position = [0.6, 0, 1]        // x, y, z
+        let radius = 0.6
+        let turnSpeed = 0.17
+        let angle = 0
+        drawLine(ctx, [200, 200], [200 + position[0] * 200, 200 + position[1] * 200])
+        function goRight(){
+            angle = Math.atan2(position[1], position[0]) + turnSpeed
+            position[0] = Math.cos(angle) * radius
+            position[1] = Math.sin(angle) * radius
+            drawLine(ctx, [200, 200], [200 + position[0] *200, 200 + position[1] * 200])
+            console.log(angle * (180 / 3.14))
+        }
+        function drawLine(ctx, begin, end, stroke = "white", width = 1){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (stroke) {
+                ctx.strokeStyle = stroke;
+            }
+
+            if (width) {
+                ctx.lineWidth = width;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(...begin);
+            ctx.lineTo(...end);
+            ctx.stroke();
+        }
+    </script>
 </body>
 </html>
