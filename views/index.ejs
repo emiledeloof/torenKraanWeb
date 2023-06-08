@@ -9,26 +9,76 @@
 </head>
 <body>
     <h1>Toren kraan</h1>
-    <button onclick="goRight()">Turn right</button>
-    <button onclick="stop()">Stop</button>
-    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <div class="mainWrapper">
+        <div id="topdownWrapper" class="viewWrappers">
+            <button onclick="stop()" id="stop">Stop</button>
+            <button onclick="turnCW()">Turn CW</button>
+            <button onclick="turnCCW()">Turn CCW</button>
+            <div class="canvasWrapper">
+                <canvas id="topdown" width="400" height="400"></canvas>
+                <label for="topdown" id="topdownLabel">Topdown</label>
+            </div>
+        </div>
+        <div id="sideWrapper" class="viewWrappers">
+            <button onclick="further()">Further</button>
+            <div class="canvasWrapper">
+                <canvas id="side" width="400" height="400"></canvas>
+                <label for="side" id="sideLabel">Sideview</label>
+            </div>
+        </div>
+
+    </div>
+    
     <script>
-        const canvas = document.getElementById("canvas")
+        const canvas = document.getElementById("topdown")
         const ctx = canvas.getContext("2d")
-        let position = [0.6, 0, 1]        // x, y, z
+        const sideView = document.getElementById("side")
+        const sideCtx = sideView.getContext("2d")
+        let position = [0.6, 0, 0.5]        // x, y, z
         let radius = 0.6
-        let turnSpeed = 0.17
+        let turnSpeed = 0.01
         let angle = 0
         drawLine(ctx, [200, 200], [200 + position[0] * 200, 200 + position[1] * 200])
-        function goRight(){
-            angle = Math.atan2(position[1], position[0]) + turnSpeed
-            position[0] = Math.cos(angle) * radius
-            position[1] = Math.sin(angle) * radius
-            drawLine(ctx, [200, 200], [200 + position[0] *200, 200 + position[1] * 200])
-            console.log(angle * (180 / 3.14))
+        drawLine(sideCtx, [100, 100], [300, 100])
+        drawLine(sideCtx, [299, 99], [300, 500])
+        drawLine(sideCtx, [100 + radius * 333, 100], [100 + radius * 333, position[2] * 200])
+        let isTurningCW = false
+        let isTurningCCW = false
+
+        async function turnCW(){
+            if(isTurningCCW == false) isTurningCW = true
+            while(isTurningCW == true && isTurningCCW == false){
+                angle = Math.atan2(position[1], position[0]) + turnSpeed
+                position[0] = Math.cos(angle) * radius
+                position[1] = Math.sin(angle) * radius
+                clearCanvas(ctx)
+                await drawLine(ctx, [200, 200], [200 + position[0] *200, 200 + position[1] * 200])
+                await sleep(100)
+            }
         }
-        function drawLine(ctx, begin, end, stroke = "white", width = 1){
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        async function turnCCW(){
+            if(isTurningCW == false) isTurningCCW = true
+            while(isTurningCCW == true && isTurningCW == false){
+                angle = Math.atan2(position[1], position[0]) - turnSpeed
+                position[0] = Math.cos(angle) * radius
+                position[1] = Math.sin(angle) * radius
+                clearCanvas(ctx)
+                await drawLine(ctx, [200, 200], [200 + position[0] * 200, 200 + position[1] * 200])
+                await sleep(100)
+            }
+        }
+
+        async function further(){
+            
+        }
+
+        function stop(){
+            isTurningCW = false
+            isTurningCCW = false
+        }
+
+        function drawLine(ctx, begin, end, stroke = "white", width = 3){
             if (stroke) {
                 ctx.strokeStyle = stroke;
             }
@@ -41,6 +91,14 @@
             ctx.moveTo(...begin);
             ctx.lineTo(...end);
             ctx.stroke();
+        }
+
+        function clearCanvas(ctx){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
     </script>
 </body>
